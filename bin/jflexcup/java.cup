@@ -1,11 +1,31 @@
 package jflexcup;
 
 import java_cup.runtime.*;
+import java.io.*;
+import java.util.*;
+import symtab.*;
+import type.*;
 
 scan with {: return lexer.next_token(); :};
 
 parser code  {: 
 
+	public static boolean add_var = true;
+  	public static boolean chek_var = true;
+	public static boolean add_function = true;
+	public static boolean add_const = true;
+	public static boolean while_ex = false;
+	public static boolean semantico_p1 = false;
+	public static String global_id = "";
+	public static String global_type = "";
+	public static String global_param = "";
+	public static String valor = "";
+	public static String sinal = "";
+  	public static boolean sintatico_ok = true;
+  	public boolean syntaxErrors;
+  	public StringBuilder erros = new StringBuilder();
+  	public static int numErros = 0; 
+  	//public static String code = "";
   public static SemanticAnalyser gerenciador = new SemanticAnalyser();
   Scanner lexer;
   
@@ -14,6 +34,70 @@ parser code  {:
     	lexer = lex;
   }
   
+  public static Scanner s;
+  public static int errors = 0;
+  public static int warnings = 0;
+  public static boolean first = true, second = false;
+  public static StringBuffer code = new StringBuffer();
+  public static String objLoc = "null";
+
+  public static void main(String argv[]) {
+
+    for (int i = 0; i < argv.length; i++) {
+      try { System.out.println("\n... Creating Symbol-Table for \""+argv[i]+"\" ...\n");
+	  	s = new Scanner(new FileReader(argv[i]));
+        	parser p = new parser(s);
+        	p.parse();
+        	System.out.println("Number of errors = " + errors + ".");
+        	System.out.println("Number of warnings = " + warnings + ".");
+		Type.printTypes();
+	  	first = false;
+	  	second = true;
+        	System.out.println("\n... Generating intermediate code for \""+argv[i]+"\" ...\n");
+		code.append("		; ModuleID = '"+argv[i]+".ll'\n\n");
+		code.append("target datalayout = \"e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f32:32:32-f64:32:64-v64:64:64-v128:128:128-a0:0:64-s0:0:64-f80:32:32\"\n");
+		code.append("target triple = \"i686-pc-linux-gnu\"\n\n");
+		code.append("		; Global values\n");
+		Set glob = Env.getGlobals().entrySet();
+  		Iterator it = glob.iterator();
+		while(it.hasNext()) { Map.Entry entry = (Map.Entry)it.next();
+					    String key = (String)entry.getKey();
+					    String value = (String)entry.getValue();
+					    if (value.equals("struct")) code.append(key+"\n");
+					    else { int lth = key.length() + 1;
+						     code.append(value+" = internal constant ["+lth+" x i8] "+" c\""+key+"\\00\"\n");
+					    }
+		}
+		code.append("\n");
+		code.append("		; External declarations\n");
+		code.append("declare i32 @printf(i8*, ...)\n");
+		code.append("declare i32 @scanf(i8*, ...)\n\n");
+        	s = new Scanner(new FileReader(argv[i]));
+	  	p = new parser(s);
+        	p.parse();
+        	System.out.println("Number of errors = " + errors + ".");
+        	System.out.println("Number of warnings = " + warnings + ".");
+		Type.printTypes();
+	  	if (errors == 0) try { FileOutputStream  fStream;
+   					     PrintWriter  myStream;
+   			      	     fStream = new FileOutputStream(argv[i]+".ll");
+   					     myStream = new PrintWriter(fStream);
+   					     myStream.println(code); 
+   					     myStream.flush();
+   					     myStream.close();
+        				     System.out.println("\nCode written to \""+argv[i]+".ll\".");
+				     }
+				     catch (IOException e) { e.printStackTrace(System.out);
+        			    				     System.exit(1);
+      			     }
+		else System.out.println("\nNo code produced.");
+		System.out.println("--------------------------------------- (parser)");
+      }
+      catch (Exception e) { e.printStackTrace(System.out);
+        			    System.exit(1);
+      }
+    }
+  }
   public void report_error(String message, Object info) {
     StringBuffer m = new StringBuffer("Erro encontrado na ");
 	
@@ -43,6 +127,127 @@ parser code  {:
     throw new RuntimeException("A análise sintática resultou em erros.");
   }
   
+  public void sem_error(String lexeme, String message) {
+	errors++;
+     	System.err.println("Error "+ s.yytext() + " : Semantic error");
+      System.err.println("  "+ errors + "==> " + message + ": "+ lexeme + "\n");
+  }
+
+  public void warning(String lexeme, String message) {
+	warnings++;
+     	System.err.println("Warning "+ s.yytext());
+      System.err.println("  "+ warnings + "==> " + message + ": "+ lexeme + "\n");
+  } 
+  
+  
+:};
+action code {:
+
+	class Sname {
+	  public String name;
+	  public Symb cs;
+	  public Symb rs;
+
+	  Sname(String n, Symb c, Symb r) {
+		name = n;
+		cs = c;
+		rs = r;
+	  }
+
+	  public String toString(){
+		return "Sname["+name+", "+cs+", "+rs+"]";
+	  }
+	}
+
+	class Exp {
+	  public Type type;
+	  public String locT;
+	  public String locN;
+	  public Labels lab;
+
+	  Exp(Type t, String lt, String ln) {
+		type = t;
+		locT = lt;
+		locN = ln;
+	  }
+
+	  Exp(Type t, Labels l) {
+		type = t;
+		lab = l;
+	  }
+
+	  Exp(Type t, String lt, String ln, Labels l) {
+		type = t;
+		locT = lt;
+		locN = ln;
+		lab = l;
+	  }
+
+  	  public void load () {
+		if(locN.startsWith("getelementptr")) { parser.code.append("	"+Tmp.nv()+" = "+locN+"\n");
+								   locN = Tmp.lv();
+		}
+		if(locT.endsWith("*") && !locT.startsWith("%struct")) { parser.code.append("	"+Tmp.nv()+" = load "+locT+" "+locN+"\n");
+					   	 					  locT = locT.replaceFirst("\\*", "");
+					   	 					  locN = Tmp.lv();
+		}
+  	  }
+
+  	  public String widen(Type w) {
+		if(type == w) return locN;
+ 		if(type.isInteger() && w.isFloating()) parser.code.append("	"+Tmp.nv()+" = sitofp i32 "+locN+" to double\n");
+ 		if(type.isCharacter() && w.isFloating()) parser.code.append("	"+Tmp.nv()+" = sitofp i8 "+locN+" to double\n");
+ 		if(type.isCharacter() && w.isInteger()) parser.code.append("	"+Tmp.nv()+" = sext i8 "+locN+" to i32\n");
+		return Tmp.lv();
+  	  }
+
+	}
+
+	class ParamList {
+	  public Type type;
+	  public List list;
+
+	  ParamList(Type t, List l) {
+		type = t;
+		list = l;
+	  }
+	}
+
+	class Labels {
+	  public String lBegin;
+	  public String lTrue;
+	  public String lFalse;
+	  public String lNext;
+	  public boolean bvalue;
+	  public boolean bvDone;
+
+	  Labels() {
+		lBegin = Tmp.nl();
+		lTrue = Tmp.nl();
+		lFalse = Tmp.nl();
+		lNext = Tmp.nl();
+		bvalue = false;
+		bvDone = false;
+	  }
+	}
+
+	class Vars {
+	  public Env e;
+	  public List vl;
+
+	  Vars(Env ee, List l) {
+		e = ee;
+		vl = l;
+	  }
+	}
+
+:};
+
+init with {:
+	if(first) {	Type.initTypes();
+			Env.initFirst();
+	}
+	if(second) Env.initSecond();
 :};
 
 terminal BOOLEAN; // primitive_type
@@ -108,6 +313,7 @@ terminal CONST, GOTO;
 
 // 19.2) The Syntactic Grammar
 non terminal goal;
+
 // 19.3) Lexical Structure
 non terminal literal;
 // 19.4) Types, Values, and Variables
@@ -118,7 +324,9 @@ non terminal class_or_interface_type;
 non terminal class_type, interface_type;
 non terminal array_type;
 // 19.5) Names
-non terminal name, simple_name, qualified_name;
+non terminal Type M1;
+non terminal Sname name, simple_name;
+
 // 19.6) Packages
 non terminal compilation_unit;
 non terminal package_declaration_opt, package_declaration;
@@ -215,7 +423,17 @@ non terminal constant_expression;
 start with goal;
 
 // 19.2) The Syntactic Grammar
-goal ::=	compilation_unit:i 
+goal ::=	compilation_unit
+{:	if(!parser.sintatico_ok){
+		parser.sintatico_ok = true; 
+		//System.out.println("Sintatico ok");
+	}else{
+		parser.semantico_p1 = true;
+		//System.out.println("Semantico ok");
+	}	
+
+	
+:} 
 	;
 
 // 19.3) Lexical Structure.
@@ -228,26 +446,20 @@ literal ::=	INTEGER_LITERAL
 	;
 
 // 19.4) Types, Values, and Variables
-type	::=	primitive_type
-	|	reference_type
+type	::=
+		primitive_type:t
+			{: RESULT = t; :}
+	|	reference_type:t
+			{: RESULT = t; :}
 	;
 primitive_type ::=
-		numeric_type
+		numeric_type:t
+			{: RESULT = t; :}
 	|	BOOLEAN
+			{: RESULT = Type.bool(); :}
 	;
-numeric_type::=	integral_type
-	|	floating_point_type
-	;
-integral_type ::= 
-		BYTE 
-	|	SHORT 
-	|	INT 
-	|	LONG 
-	|	CHAR 
-	;
-floating_point_type ::= 
-		FLOAT 
-	|	DOUBLE
+numeric_type::=	integral_type:t 	{: RESULT = t; :}
+	|	floating_point_type:t 	{: RESULT = t; :}
 	;
 
 reference_type ::=
@@ -259,18 +471,65 @@ class_or_interface_type ::= name;
 class_type ::=	class_or_interface_type;
 interface_type ::= class_or_interface_type;		
 
-array_type ::=	primitive_type dims
-	|	name dims
+array_type ::=
+		primitive_type:t dims
+			{: RESULT = Type.array(0, (Type) t); :}
+	|	name:sn dims
+			{: Symb s = sn.cs; 
+			   if(s == null) { parser.sem_error(sn.name,"UNKNOWN NAME");
+				    		 RESULT = Type.errortype();
+			   } 
+			   else RESULT = Type.array(0, Type.reference(s.getType()));
+			:}
 	;
 
+integral_type ::= 
+		BYTE 
+	|	SHORT 
+	|	INT 						{: RESULT = Type.integer(); :}
+	|	LONG 						{: RESULT = Type.floating(); :}  	//mudar depois
+	|	CHAR 						{: RESULT = Type.character(); :}
+	;
+floating_point_type ::= 
+		FLOAT 						{: RESULT = Type.floating(); :}
+	|	DOUBLE						{: RESULT = Type.floating(); :}		//mudar depois
+	;
+
+
 // 19.5) Names
-name	::=	simple_name
-	|	qualified_name
-	;
-simple_name ::=	IDENTIFIER
-	;
-qualified_name ::=
-		name DOT IDENTIFIER
+name	::=
+		IDENTIFIER:n
+			{: RESULT = new Sname(n, Env.get(n), Env.get(n, Env.getRoot())); :}			
+		|	name:sn DOT IDENTIFIER:n
+			{: Symb s1 = sn.cs;
+			   if(s1 == null) { parser.sem_error(sn.name, "UNKNOWN NAME");
+						  RESULT = new Sname(n, null, null);
+			   }
+			   else { Type t1 = s1.getType();
+				    if(!t1.isReference()) { parser.sem_error(""+t1, "NOT A REFERENCE");
+								    RESULT = new Sname(n, null, null);
+				    }
+				    else { Type r = ((Reference)t1).getReferred();
+					     if(!r.isName()) { parser.sem_error(""+r, "NOT A CLASS");
+								     RESULT = new Sname(n, null, null);
+					     }
+					     else { Symb s2 = Env.get(n, ((Name)r).getEnv()); 
+			   			     	if(s2 == null) { parser.sem_error(n,"UNKNOWN NAME"); 
+									     RESULT = new Sname(n, null, null);
+							}
+			   			     	else if (!s2.isPublic() && !Name.getCurrentClass().isSubclass(s2.getOwner())) { parser.sem_error(n, "ILLEGAL ACCESS TO PRIVATE ATTRIBUTE");
+				    					 				     			     	      		  RESULT = new Sname(n, null, null);
+						  	     }
+						  	     else { if(parser.second) { parser.code.append("		; name\n");
+												  parser.code.append("	"+Tmp.nv()+" = load "+s1.getLoc()+"\n");
+												  parser.objLoc = Tmp.lv();
+									}
+									RESULT = new Sname(n, s2, Env.get(n, Env.getRoot()));
+							     }
+					     }								
+				    }
+			   }
+			:}	
 	;
 
 // 19.6) Packages
@@ -359,7 +618,7 @@ class_body_declaration ::=
 	|	block
 	;
 class_member_declaration ::=
-		field_declaration
+		field_declaration 
 	|	method_declaration
 	/* repeat the prod for 'class_declaration' here: */
 	|	modifiers_opt CLASS IDENTIFIER super_opt interfaces_opt class_body
@@ -369,20 +628,44 @@ class_member_declaration ::=
 
 // 19.8.2) Field Declarations
 field_declaration ::= 
-		modifiers_opt type variable_declarators SEMICOLON
+		modifiers_opt type variable_declarators:w SEMICOLON
+	|	modifiers_opt type error 
+			{: parser.report_error("variable_declarators","WRONG"); :}
+		SEMICOLON 
+	|	modifiers_opt type error 
+			{: parser.report_error("field_declaration","WRONG"); :} 
+		method_declaration 
 	;
 variable_declarators ::=
-		variable_declarator
-	|	variable_declarators COMMA variable_declarator
-	;
-variable_declarator ::=
 		variable_declarator_id
-	|	variable_declarator_id EQ variable_initializer
+	|	variable_declarators COMMA M1 variable_declarator_id
+	|	error 
+			{: parser.report_error("variable_declarator_id","WRONG"); :} 
+		COMMA variable_declarator_id
+	;
+M1 ::=
+			{: RESULT = (Type)((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)).value; :}
 	;
 variable_declarator_id ::=
-		IDENTIFIER:i {: SemanticAnalyser.addID(i);  :}
+		IDENTIFIER:n
+			{: 	
+				if(parser.first) {// Boolean m = (Boolean)((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)).value;
+			   			    //boolean mod = m == null ? false: m.booleanValue();	
+			  			    Type t = (Type)((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)).value;
+			   			    //Name c = Name.getCurrentClass();
+			   			    //String cname = c.getName();
+			   			    //Symb csymb = Env.get(cname);
+			   			    //Symb s;
+			   			    
+			   			    //s = new Symb(t, c, mod, t.getCode(), "%"+n);	
+			   			    SemanticAnalyser.addVariavel(n+"",t+"");
+			   			   // System.out.println(n,t);					    	
+			   }
+			   RESULT = n;
+			:}
 	|	variable_declarator_id LBRACK RBRACK
 	;
+
 variable_initializer ::=
 		expression
 	|	array_initializer
@@ -409,7 +692,7 @@ formal_parameter_list ::=
 	|	formal_parameter_list COMMA formal_parameter
 	;
 formal_parameter ::=
-		type variable_declarator_id
+		type variable_declarator_id 
 	|	FINAL type variable_declarator_id
 	;
 throws_opt ::=	
@@ -509,21 +792,22 @@ block_statements_opt ::=
 	|	block_statements
 	;
 block_statements ::=
-		block_statement
+		block_statement 
 	|	block_statements block_statement
 	;
 block_statement ::=
-		local_variable_declaration_statement
+		local_variable_declaration_statement 
 	|	statement
 	|	class_declaration
 	|	interface_declaration
 	;
 local_variable_declaration_statement ::=
-		local_variable_declaration SEMICOLON
+
+		local_variable_declaration SEMICOLON	
 	;
 local_variable_declaration ::=
-		type variable_declarators
-	|	FINAL type variable_declarators
+		type:t variable_declarators	{: RESULT = t; :} 
+	|	FINAL type variable_declarators 
 	;
 statement ::=	statement_without_trailing_substatement
 	|	labeled_statement

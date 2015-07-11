@@ -11,8 +11,25 @@ public class SemanticAnalyser {
 	}
 	
 	public static void addID(String id){
-		ids.add(id);
-		System.out.println("Adicionei a id: "+id);
+		
+		if(ids.contains(id)){
+			System.err.println("Variável "+id+" já existe.");
+			//System.exit(1);
+		}else{
+			ids.add(id);
+			System.out.println("Adicionei a id: "+id);
+		}		
+		
+	}
+
+	public static void addVariavel(String id, String type) {		
+		if(ids.contains(id)){
+			System.err.println("Tentei adicionar a id: "+id+" de tipo "+type+", mas ela já existe!");
+			System.exit(1);
+		}else{
+			ids.add(id);
+			System.out.println("Adicionei a id: "+id+" de tipo "+type+".");
+		}		
 	}
 
 }
