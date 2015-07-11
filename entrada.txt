@@ -7,6 +7,5 @@ public class HelloWorld
 		double oi;
 		char teste;
 		int st1;
-		System.out.println(st1);
 	}
 }
