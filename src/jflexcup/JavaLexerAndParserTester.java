@@ -17,26 +17,26 @@ package jflexcup;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import java_cup.runtime.Symbol;
 
 public class JavaLexerAndParserTester {
+	
 
 	public static void main(String[] argv) {
 
 		try {
 
 			Scanner scanner = new Scanner(new FileReader(argv[0]));
-
-
 			analiseLexica(scanner);
 			scanner = new Scanner(new FileReader(argv[0]));
 			System.out.println("\n");
 			analiseSintatica(scanner);
 		} catch (Exception e) {
 		}
-
-
+		
 	}
 
 	public static void analiseLexica(Scanner scanner){
@@ -44,9 +44,21 @@ public class JavaLexerAndParserTester {
 		System.out.println("-------- Análise Léxica--------");
 		Symbol s;
 		
+		List<String> id = new ArrayList<String>();
+		
 		try {
 			do {
-				s = scanner.next_token();
+				//s = scanner.next_token();
+				s = scanner.debug_next_token();
+				
+				if (scanner.getTokenName(s.sym).equals("IDENTIFIER")){
+					if (id.contains(scanner.yytext())){
+						System.out.println("Erro na analise semântica o identificador " + scanner.yytext() + " ja foi utilizado" );
+					}else {
+						id.add(scanner.yytext());
+					}
+				}
+				
 			} while (s.sym != sym.EOF);
 			
 			System.out.println("Sem erros.");

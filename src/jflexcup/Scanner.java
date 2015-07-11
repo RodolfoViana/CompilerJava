@@ -1935,7 +1935,7 @@ public class Scanner implements java_cup.runtime.Scanner {
    *
    * This code was contributed by Karl Meissner <meissnersd@yahoo.com>
    */
-  private String getTokenName(int token) {
+  public String getTokenName(int token) {
     try {
       java.lang.reflect.Field [] classFields = sym.class.getFields();
       for (int i = 0; i < classFields.length; i++) {
