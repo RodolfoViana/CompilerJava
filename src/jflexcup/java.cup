@@ -2,7 +2,18 @@ package jflexcup;
 
 import java_cup.runtime.*;
 
+scan with {: return lexer.next_token(); :};
+
 parser code  {: 
+
+  public static SemanticAnalyser gerenciador = new SemanticAnalyser();
+  Scanner lexer;
+  
+  public parser(Scanner lex) {
+      	super(lex);
+    	lexer = lex;
+  }
+  
   public void report_error(String message, Object info) {
     StringBuffer m = new StringBuffer("Erro encontrado na ");
 	
@@ -204,7 +215,7 @@ non terminal constant_expression;
 start with goal;
 
 // 19.2) The Syntactic Grammar
-goal ::=	compilation_unit
+goal ::=	compilation_unit:i 
 	;
 
 // 19.3) Lexical Structure.
@@ -369,7 +380,7 @@ variable_declarator ::=
 	|	variable_declarator_id EQ variable_initializer
 	;
 variable_declarator_id ::=
-		IDENTIFIER
+		IDENTIFIER:i {: SemanticAnalyser.addID(i);  :}
 	|	variable_declarator_id LBRACK RBRACK
 	;
 variable_initializer ::=

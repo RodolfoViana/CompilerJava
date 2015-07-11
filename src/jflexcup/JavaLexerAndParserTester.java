@@ -23,7 +23,7 @@ import java.util.List;
 import java_cup.runtime.Symbol;
 
 public class JavaLexerAndParserTester {
-	
+
 
 	public static void main(String[] argv) {
 
@@ -36,31 +36,31 @@ public class JavaLexerAndParserTester {
 			analiseSintatica(scanner);
 		} catch (Exception e) {
 		}
-		
+
 	}
 
 	public static void analiseLexica(Scanner scanner){
 
 		System.out.println("-------- Análise Léxica--------");
 		Symbol s;
-		
+
 		List<String> id = new ArrayList<String>();
-		
+
 		try {
 			do {
-				//s = scanner.next_token();
-				s = scanner.debug_next_token();
-				
+				s = scanner.next_token();
+				/*s = scanner.debug_next_token();
+
 				if (scanner.getTokenName(s.sym).equals("IDENTIFIER")){
 					if (id.contains(scanner.yytext())){
 						System.out.println("Erro na analise semântica o identificador " + scanner.yytext() + " ja foi utilizado" );
 					}else {
 						id.add(scanner.yytext());
 					}
-				}
-				
+				}*/
+
 			} while (s.sym != sym.EOF);
-			
+
 			System.out.println("Sem erros.");
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
@@ -77,6 +77,7 @@ public class JavaLexerAndParserTester {
 		System.out.println("-------- Análise Sintática--------");
 		try {
 			parser p = new parser(s);
+
 			p.parse();
 			System.out.println("Sem erros.");
 		}
@@ -86,6 +87,6 @@ public class JavaLexerAndParserTester {
 			System.exit(1);
 
 		}
-		
+
 	}
 }
