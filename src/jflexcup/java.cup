@@ -437,12 +437,12 @@ goal ::=	compilation_unit
 	;
 
 // 19.3) Lexical Structure.
-literal ::=	INTEGER_LITERAL
-	|	FLOATING_POINT_LITERAL
-	|	BOOLEAN_LITERAL
-	|	CHARACTER_LITERAL
-	|	STRING_LITERAL
-	|	NULL_LITERAL
+literal ::=	INTEGER_LITERAL:l {: 	   RESULT = new Exp(Type.integer(), "i32", ""+l); 	:}
+	|	FLOATING_POINT_LITERAL {: RESULT = Type.floating(); :}
+	|	BOOLEAN_LITERAL {: RESULT = Type.bool(); :}
+	|	CHARACTER_LITERAL {: RESULT = Type.character(); :}
+	|	STRING_LITERAL 
+	|	NULL_LITERAL 
 	;
 
 // 19.4) Types, Values, and Variables
@@ -636,16 +636,28 @@ field_declaration ::=
 			{: parser.report_error("field_declaration","WRONG"); :} 
 		method_declaration 
 	;
+	
+	
 variable_declarators ::=
 		variable_declarator_id
 	|	variable_declarators COMMA M1 variable_declarator_id
+	
 	|	error 
 			{: parser.report_error("variable_declarator_id","WRONG"); :} 
 		COMMA variable_declarator_id
 	;
+	
+	
 M1 ::=
 			{: RESULT = (Type)((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)).value; :}
 	;
+	
+/*
+variable_declarator ::=
+		variable_declarator_id:n {:	System.out.println("er"); :}
+	|	variable_declarator_id:n EQ variable_initializer:l {:	System.out.println(l); :}
+	;
+	*/
 variable_declarator_id ::=
 		IDENTIFIER:n
 			{: 	
@@ -663,12 +675,14 @@ variable_declarator_id ::=
 			   }
 			   RESULT = n;
 			:}
-	|	variable_declarator_id LBRACK RBRACK
+	|	variable_declarator_id EQ variable_initializer:l {:	System.out.println(l); :}
+	|   variable_declarator_id LBRACK RBRACK
 	;
+	
 
 variable_initializer ::=
-		expression
-	|	array_initializer
+		expression:v {: RESULT = v; :}
+	|	array_initializer:v {: RESULT = v; :}
 	;
 
 // 19.8.3) Method Declarations
@@ -1119,7 +1133,7 @@ conditional_expression ::=
 			COLON conditional_expression
 	;
 assignment_expression ::=
-		conditional_expression
+		conditional_expression 
 	|	assignment
 	;
 assignment ::=	left_hand_side assignment_operator assignment_expression
@@ -1146,7 +1160,7 @@ assignment_operator ::=
 expression_opt ::=
 	|	expression
 	;
-expression ::=	assignment_expression
+expression ::=	assignment_expression:v {: RESULT = v; :}
 	;
 constant_expression ::=
 		expression

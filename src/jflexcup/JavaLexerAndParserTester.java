@@ -23,25 +23,69 @@ import java.util.List;
 import java_cup.runtime.Symbol;
 
 public class JavaLexerAndParserTester {
-
+	
 
 	public static void main(String[] argv) {
 
-
-
-
 		try {
-			Scanner scanner = new Scanner(new FileReader(argv[0]));
-			parser p = new parser(scanner);
-			Symbol s;
-			p.parse();
-			//p.parse();
-			
-			//p.debug_parse();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
+			Scanner scanner = new Scanner(new FileReader(argv[0]));
+			analiseLexica(scanner);
+			scanner = new Scanner(new FileReader(argv[0]));
+			System.out.println("\n");
+			analiseSintatica(scanner);
+		} catch (Exception e) {
+		}
+		
+	}
+
+	public static void analiseLexica(Scanner scanner){
+
+		System.out.println("-------- Análise Léxica--------");
+		Symbol s;
+		
+		List<String> id = new ArrayList<String>();
+		
+		try {
+			do {
+//				s = scanner.next_token();
+				s = scanner.debug_next_token();
+//				
+//				if (scanner.getTokenName(s.sym).equals("IDENTIFIER")){
+//					if (id.contains(scanner.yytext())){
+//						System.out.println("Erro na analise semântica o identificador " + scanner.yytext() + " ja foi utilizado" );
+//					}else {
+//						id.add(scanner.yytext());
+//					}
+//				}
+				
+			} while (s.sym != sym.EOF);
+			
+			System.out.println("Sem erros.");
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			System.err.println("A análise léxica resultou em erros. Não será feita a sintática!");
+			System.err.println("--------    Sysexit!   --------");
+			System.exit(1);
+		}			
+
+
+	}
+
+	public static void analiseSintatica(Scanner s){
+
+		System.out.println("-------- Análise Sintática--------");
+		try {
+			parser p = new parser(s);
+			p.parse();
+			System.out.println("Sem erros.");
+		}
+		catch (Exception e) {
+			System.err.println(e.getMessage());
+			System.err.println("--------      Sysexit!    --------");
+			System.exit(1);
+
+		}
+		
 	}
 }

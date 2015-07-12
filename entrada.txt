@@ -4,8 +4,7 @@
 public class HelloWorld
 {
 	public static void main() {
-		double oi;
-		char teste;
 		int st1;
+		st1 = 1;
 	}
 }
