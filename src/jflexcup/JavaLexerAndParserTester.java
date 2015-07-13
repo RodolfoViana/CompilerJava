@@ -48,8 +48,8 @@ public class JavaLexerAndParserTester {
 		
 		try {
 			do {
-//				s = scanner.next_token();
-				s = scanner.debug_next_token();
+				s = scanner.next_token();
+//				s = scanner.debug_next_token();
 //				
 //				if (scanner.getTokenName(s.sym).equals("IDENTIFIER")){
 //					if (id.contains(scanner.yytext())){
