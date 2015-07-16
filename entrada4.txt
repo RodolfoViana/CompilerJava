@@ -5,8 +5,10 @@ public class PrimitiveParameters
 	}
 	
 	public static void go()
-	{	int x = 3;
-		int y = 2;
+	{	int x;
+		x = 3;
+		int y;
+		y = 2;
 		System.out.println("In method go. x: " + x + " y: " + y);
 		falseSwap(x,y);
 		System.out.println("in method go. x: " + x + " y: " + y);
@@ -16,7 +18,8 @@ public class PrimitiveParameters
 	
 	public static void falseSwap(int x, int y)
 	{	System.out.println("in method falseSwap. x: " + x + " y: " + y);
-		int temp = x;
+		int temp;
+		temp = x;
 		x = y;
 		y = temp;
 		System.out.println("in method falseSwap. x: " + x + " y: " + y);

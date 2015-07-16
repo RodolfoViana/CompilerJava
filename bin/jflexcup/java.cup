@@ -26,16 +26,16 @@ parser code  {:
   public static void main(String argv[]) {
 
     for (int i = 0; i < argv.length; i++) {
-      try { System.out.println("\n... Creating Symbol-Table for \""+argv[i]+"\" ...\n");
+      try { //System.out.println("\n... Creating Symbol-Table for \""+argv[i]+"\" ...\n");
 	  	s = new Scanner(new FileReader(argv[i]));
         	parser p = new parser(s);
         	p.parse();
-        	System.out.println("Number of errors = " + errors + ".");
-        	System.out.println("Number of warnings = " + warnings + ".");
-		Type.printTypes();
+        	System.out.println("Número de Erros= " + errors + ".");
+        	System.out.println("Número de Warnings = " + warnings + ".");
+		//Type.printTypes();
 	  	first = false;
 	  	second = true;
-        	System.out.println("\n... Generating intermediate code for \""+argv[i]+"\" ...\n");
+        	//System.out.println("\n... Generating intermediate code for \""+argv[i]+"\" ...\n");
 		code.append("		; ModuleID = '"+argv[i]+".ll'\n\n");
 		code.append("target datalayout = \"e-p:32:32:32-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:32:64-f32:32:32-f64:32:64-v64:64:64-v128:128:128-a0:0:64-s0:0:64-f80:32:32\"\n");
 		code.append("target triple = \"i686-pc-linux-gnu\"\n\n");
@@ -57,9 +57,9 @@ parser code  {:
         	s = new Scanner(new FileReader(argv[i]));
 	  	p = new parser(s);
         	p.parse();
-        	System.out.println("Number of errors = " + errors + ".");
-        	System.out.println("Number of warnings = " + warnings + ".");
-		Type.printTypes();
+        	System.out.println("Número de Erros = " + errors + ".");
+        	System.out.println("Número de Warnings = " + warnings + ".");
+		//Type.printTypes();
 	  	if (errors == 0) try { FileOutputStream  fStream;
    					     PrintWriter  myStream;
    			      	     fStream = new FileOutputStream(argv[i]+".ll");
@@ -67,7 +67,7 @@ parser code  {:
    					     myStream.println(code); 
    					     myStream.flush();
    					     myStream.close();
-        				     System.out.println("\nCode written to \""+argv[i]+".ll\".");
+        				     System.out.println("\nArquivo de Saida \""+argv[i]+".ll\".");
 				     }
 				     catch (IOException e) { e.printStackTrace(System.out);
         			    				     System.exit(1);
@@ -98,8 +98,8 @@ parser code  {:
 
   public void sem_error(String lexeme, String message) {
 	errors++;
-     	System.err.println("Error "+ s.yytext() + " : Semantic error");
-      System.err.println("  "+ errors + "==> " + message + ": "+ lexeme + "\n");
+     	System.err.println("Error "+ s.yytext() + " : Erro Semantico");
+        System.err.println("  "+ errors + "==> " + message + ": "+ lexeme + "\n");
   }
 
   public void warning(String lexeme, String message) {
@@ -261,6 +261,8 @@ terminal PACKAGE;
 terminal IMPORT;
 terminal IMPLEMENTS;
 terminal INTERFACE;
+//terminal MULTEQ, DIVEQ, PLUSEQ, MINUSEQ; // assignment_operator
+//terminal ANDEQ, XOREQ, OREQ; // assignment_operator
 
 terminal java.lang.Number INTEGER_LITERAL;
 terminal java.lang.Number FLOATING_POINT_LITERAL;
@@ -358,6 +360,7 @@ non terminal Exp left_hand_side;
 non terminal Exp expression_opt, expression;
 non terminal preincrement_expression, predecrement_expression;
 non terminal postincrement_expression, postdecrement_expression;
+//non terminal assignment_operator;
 
 start with compilation_unit;
 
@@ -550,16 +553,16 @@ non_access_modifier_opt ::=  | STATIC | ABSTRACT | FINAL | NATIVE | SYNCHRONIZED
 // 5) Classes
 class_declaration ::= 
 		modifiers_opt:m CLASS IDENTIFIER:n1 
-			{: System.out.println("CLASS ENTRY: "+n1);
+			{: //System.out.println("CLASS ENTRY: "+n1);
 			   if(parser.first) if (Env.putClass(n1, m.booleanValue()) != 0) parser.sem_error(n1,"DUPLICATE CLASS NAME");
  			   if(parser.second) { Env.next();
 						     Name c = Env.get(n1).getOwner();
 						     Name.putCurrentClass(c);
-						     System.out.println("second");
+				//		     System.out.println("second");
 			   } 
 			:}
 		class_body
-			{: System.out.println("CLASS EXIT: "+n1);
+			{: //System.out.println("CLASS EXIT: "+n1);
 			   if(parser.first) { Env e = Env.getCurrent();
 						    List vars = e.getEvars();
 					          ListIterator l = vars.listIterator();
@@ -585,7 +588,7 @@ class_declaration ::=
 			   if(parser.second) Env.next();
 			:}
 	|	modifiers_opt:m CLASS IDENTIFIER:n1 EXTENDS IDENTIFIER:n2
-			{: System.out.println("CLASS ENTRY: "+n1);
+			{: //System.out.println("CLASS ENTRY: "+n1);
 			   if(parser.first) switch (Env.putClass(n1, m.booleanValue(),n2)){ case 1: parser.sem_error(n1,"DUPLICATE CLASS NAME");
 							     								    break;
 													        case 2: parser.sem_error(n2,"UNKNOWN CLASS");
@@ -597,7 +600,7 @@ class_declaration ::=
 			   }
 			:}
 		class_body
-			{: System.out.println("CLASS EXIT: "+n1);
+			{: //System.out.println("CLASS EXIT: "+n1);
 			   if(parser.first) { List e_vars = new ArrayList();
 						    Env e = Env.getCurrent();
 						    e_vars.add(new Vars(e, e.getEvars()));
@@ -790,10 +793,10 @@ method_header ::=
 			:}
 	|	modifiers_opt:m VOID IDENTIFIER:n 
 			{: if(parser.first) { if (!Env.put(n, null)) parser.sem_error(n,"DUPLICATE NAME");
-						    System.out.println(" METHOD ENTRY: "+n);
+						    //System.out.println(" METHOD ENTRY: "+n);
 		 				    Env.push();
 			   }
-			   if(parser.second) { System.out.println(" METHOD ENTRY: "+n);
+			   if(parser.second) { //System.out.println(" METHOD ENTRY: "+n);
 						     Env.next();
 						     parser.code.append("		; method_header\n");
 						     if(n.equals("main")) parser.code.append("define void @main(");
@@ -872,19 +875,20 @@ formal_parameter ::=
 			{: if(parser.first) Env.remVar(n);
 			   RESULT = n; 
 			:}
+	|    FINAL type:t variable_declarator_id:n 
 	;
 method_body ::=
 		LBRACE M3 block_statements_opt RBRACE
-   			{: System.out.println(" METHOD EXIT");
+   			{: //System.out.println(" METHOD EXIT");
 			   if(parser.first) Env.pop(); 
 			   if(parser.second) Env.next();
 			:}
 	|	LBRACE M3 error RBRACE
-			{: parser.report_error("block","WRONG");
+			{: //parser.report_error("block","WRONG");
 			   System.out.println(" METHOD EXIT");
 			:}
 	|	SEMICOLON
-			{: System.out.println(" METHOD EXIT");
+			{: //System.out.println(" METHOD EXIT");
 			   if(parser.first) Env.pop();
 			   if(parser.second) Env.next(); 
 			:}
@@ -923,10 +927,10 @@ constructor_declarator ::=
 			   			    	     String cname = c.getName();
 						    	     if (!n.equals(cname)) parser.sem_error(n+", "+cname,"CONSTRUCTOR NAME DIFFERENT FROM CLASS NAME");
 						    }
-						    System.out.println(" CONSTRUCTOR ENTRY: "+n);
+						    //System.out.println(" CONSTRUCTOR ENTRY: "+n);
 		 				    Env.push();
 			   }
-			   if(parser.second) { System.out.println(" CONSTRUCTOR ENTRY: "+n);
+			   if(parser.second) { //System.out.println(" CONSTRUCTOR ENTRY: "+n);
 						     Env.next();
 						     Symb msymb = Env.get(n);
 						     Constructor c = (Constructor)msymb.getType();
@@ -980,24 +984,24 @@ constructor_declarator ::=
 	;
 constructor_body ::=
 		LBRACE M3 explicit_constructor_invocation block_statements_opt RBRACE
-			{: System.out.println(" CONSTRUCTOR EXIT");
+			{: //System.out.println(" CONSTRUCTOR EXIT");
 			   if(parser.first) Env.pop(); 
 			   if(parser.second) Env.next();
 			:}
 	|	LBRACE M3 block_statements_opt RBRACE
-   			{: System.out.println(" CONSTRUCTOR EXIT");
+   			{: //System.out.println(" CONSTRUCTOR EXIT");
 			   if(parser.first) Env.pop(); 
 			   if(parser.second) Env.next();
 			:}
 	|	LBRACE M3 error RBRACE
    			{: parser.report_error("block","WRONG");
-			   System.out.println(" CONSTRUCTOR EXIT");
+			   //System.out.println(" CONSTRUCTOR EXIT");
 			   if(parser.first) Env.pop(); 
 			   if(parser.second) Env.next();  
 			:} 
 	;
 M2 ::= 
-   			{: System.out.println(" BLOCK ENTRY");
+   			{: //System.out.println(" BLOCK ENTRY");
 			   if(parser.first) Env.push(); 
 			   if(parser.second) { Env.next();
 						     ListIterator l = Env.getVars().listIterator();
@@ -1070,13 +1074,13 @@ explicit_constructor_invocation ::=
 // 6) Blocks and Statements
 block ::=
 		LBRACE M2 block_statements_opt RBRACE
-   			{: System.out.println(" BLOCK EXIT");
+   			{: //System.out.println(" BLOCK EXIT");
 			   if(parser.first) Env.pop(); 
 			   if(parser.second) Env.next();
 			:}		
 	|	LBRACE M2 error 
 			{: parser.report_error("block","WRONG");
-			   System.out.println(" BLOCK EXIT");
+			   //System.out.println(" BLOCK EXIT");
 			   if(parser.first) Env.pop(); 
 			   if(parser.second) Env.next();
  			:} 
