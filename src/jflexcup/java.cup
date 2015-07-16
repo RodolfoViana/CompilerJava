@@ -680,13 +680,7 @@ class_member_declaration ::=
 
 // 5.2) Field Declarations
 field_declaration ::= 
-		modifiers_opt type variable_declarators:w assign_opt:o SEMICOLON {: System.err.println(o.type); if(parser.second) if(w.type.isArray()) { if(w.type != o.type) { parser.sem_error(""+w.type+", "+o.type, "INCOMPATIBLE TYPES");
-				    						    	   			    RESULT = new Exp(Type.errortype(), "", "");
-			   			   	  			   }
-										   else { Symb s = Env.get(e1.locN.replaceFirst("%", ""));
-											    s.putLocT(e2.locT);
-											    s.putLocN(e2.locN);
-										   }
+		modifiers_opt type variable_declarators:w assign_opt:o SEMICOLON
 	|	modifiers_opt type error 
 			{: parser.report_error("variable_declarators","WRONG"); :}
 		SEMICOLON 
