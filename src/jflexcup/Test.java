@@ -1,11 +1,12 @@
 package jflexcup;
 
 class Test {
-	int i;
-
-	static void main(){
+	
+	public void abc(){
+		int i;
+		i = 0;
 		
-		int i, j;
-	}
-
+		int j;
+		for (j = 0;j < 5;){}
+	}	
 }

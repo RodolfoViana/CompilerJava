@@ -245,6 +245,7 @@ terminal THIS, SUPER; // explicit_constructor_invocation
 terminal AT; // reference operator
 terminal IF, ELSE; // if_then_statement, if_then_else_statement
 terminal WHILE; // while_statement, do_statement
+terminal FOR; // for_statement
 terminal RETURN; // return_statement
 terminal NEW; // class_instance_creation_expression
 terminal PLUS, MINUS, NOT, DIV, MOD;
@@ -312,7 +313,7 @@ non terminal explicit_constructor_invocation;
 // 6) Blocks and Statements
 non terminal block, M2;
 non terminal block_statements_opt, block_statements, block_statement;
-non terminal local_variable_declaration_statement;
+non terminal local_variable_declaration_statement, local_variable_declaration;
 non terminal statement, statement_no_short_if;
 non terminal statement_without_trailing_substatement;
 non terminal empty_statement;
@@ -321,6 +322,10 @@ non terminal if_then_statement;
 non terminal if_then_else_statement, if_then_else_statement_no_short_if;
 non terminal while_statement, while_statement_no_short_if;
 non terminal return_statement;
+non terminal for_statement, for_statement_no_short_if;
+non terminal for_init_opt, for_init;
+non terminal for_update_opt, for_update;
+non terminal statement_expression_list;
 
 // 7) Expressions
 non terminal Exp primary, primary_no_new_array;
@@ -615,7 +620,7 @@ field_declaration ::=
 		method_declaration 
 	;
 	
-assign_opt ::= | EQ assignment_expression:e2 {:System.out.println("eeeeeeeeeeeeeeeee");System.out.println(e2);:};
+assign_opt ::= | EQ assignment_expression;
 
 variable_declarators ::=
 		variable_declarator_id
@@ -1031,16 +1036,22 @@ local_variable_declaration_statement ::=
 			{: parser.report_error("local_variable_declaration_statement","WRONG"); :} 
 		SEMICOLON
 	;
+local_variable_declaration ::=
+		type variable_declarators
+	|	FINAL type variable_declarators
+	;
 statement ::=
 		statement_without_trailing_substatement
 	|	if_then_statement
 	|	if_then_else_statement
 	|	while_statement
+	|   for_statement
 	;
 statement_no_short_if ::=
 		statement_without_trailing_substatement
 	|	if_then_else_statement_no_short_if
 	|	while_statement_no_short_if
+	|   for_statement_no_short_if
 	;
 statement_without_trailing_substatement ::=
 		block
@@ -1113,6 +1124,40 @@ if_then_else_statement_no_short_if ::=
 						   }	
 			:}
 	;
+	
+	
+//Added by Rodolfo start
+	
+for_statement ::=
+		FOR LPAREN for_init_opt SEMICOLON  expression_opt:e SEMICOLON
+			for_update_opt RPAREN statement {: if(parser.second) if(!e.type.isBool()) parser.sem_error(""+e.type, "NOT A BOOLEAN");
+						   /* else { parser.code.append("	br label %"+l.lBegin+"\n");
+							    parser.code.append(l.lFalse+":	; l_False\n");
+						   }	*/
+			:}
+	;
+for_statement_no_short_if ::=
+		FOR LPAREN for_init_opt SEMICOLON expression_opt SEMICOLON
+			for_update_opt RPAREN statement_no_short_if
+	;
+for_init_opt ::=
+	|	for_init
+	;
+for_init ::=	statement_expression_list
+	|	local_variable_declaration
+	;
+for_update_opt ::=
+	|	for_update
+	;
+for_update ::=	statement_expression_list
+	;
+statement_expression_list ::=
+		statement_expression
+	|	statement_expression_list COMMA statement_expression
+	;
+
+//Added by Rodolfo end
+
 while_statement ::=
 		WHILE LPAREN M7:l expression:e M5 RPAREN statement
 			{: if(parser.second) if(!e.type.isBool()) parser.sem_error(""+e.type, "NOT A BOOLEAN");

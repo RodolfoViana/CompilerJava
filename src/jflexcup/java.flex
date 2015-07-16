@@ -139,6 +139,7 @@ SingleCharacter = [^\r\n\'\\]
   "volatile"                     { return symbol( sym.VOLATILE); }
   "strictfp"                     { return symbol( sym.STRICTFP); }
   "while"                        { return symbol(sym.WHILE); }
+  "for"							 { return symbol(sym.FOR); }
   "this"                         { return symbol(sym.THIS); }
 
   /* boolean literals */
