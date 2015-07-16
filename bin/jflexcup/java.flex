@@ -173,8 +173,10 @@ SingleCharacter = [^\r\n\'\\]
   ">="                           { return symbol(sym.GTEQ); }
   "!="                           { return symbol(sym.NOTEQ); }
   "&&"                           { return symbol(sym.ANDAND); }
-  "&"          			   { return symbol(sym.AT); }
-  "||"                           { return symbol(sym.OROR); } 
+  "&"          			   		{ return symbol(sym.AT); }
+  "||"                           { return symbol(sym.OROR); }
+  "--"                            { return symbol(sym.MINUSMINUS); }
+  "++"                            { return symbol(sym.PLUSPLUS); } 
   "+"                            { return symbol(sym.PLUS); }
   "-"                            { return symbol(sym.MINUS); }
   "*"                            { return symbol(sym.MULT); }

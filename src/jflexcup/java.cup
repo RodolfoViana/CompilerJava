@@ -1,3 +1,5 @@
+//VERSÃO COM O PLUPLUS MAIS ALGUMAS FUNCÕES
+
 package jflexcup;
 
 import java_cup.runtime.*;
@@ -248,7 +250,7 @@ terminal WHILE; // while_statement, do_statement
 terminal FOR; // for_statement
 terminal RETURN; // return_statement
 terminal NEW; // class_instance_creation_expression
-terminal PLUS, MINUS, NOT, DIV, MOD;
+terminal PLUS, PLUSPLUS, MINUSMINUS,MINUS, NOT, DIV, MOD;
 terminal LT, GT, LTEQ, GTEQ; // relational_expression
 terminal EQEQ, NOTEQ; // equality_expression
 terminal ANDAND; // conditional_and_expression
@@ -345,7 +347,8 @@ non terminal Exp conditional_expression, assignment_expression;
 non terminal Exp assignment;
 non terminal Exp left_hand_side;
 non terminal Exp expression_opt, expression;
-
+non terminal preincrement_expression, predecrement_expression;
+non terminal postincrement_expression, postdecrement_expression;
 
 start with goal;
 
@@ -1067,6 +1070,10 @@ expression_statement ::=
 	;
 statement_expression ::=
 		assignment
+	|	preincrement_expression
+	|	predecrement_expression
+	|	postincrement_expression
+	|	postdecrement_expression
 	|	method_invocation
 	|	class_instance_creation_expression
 	;
@@ -1129,7 +1136,7 @@ if_then_else_statement_no_short_if ::=
 //Added by Rodolfo start
 	
 for_statement ::=
-		FOR LPAREN for_init_opt SEMICOLON  expression_opt:e SEMICOLON
+		FOR LPAREN for_init_opt SEMICOLON M7:l expression_opt:e M5 SEMICOLON
 			for_update_opt RPAREN statement {: if(parser.second) if(!e.type.isBool()) parser.sem_error(""+e.type, "NOT A BOOLEAN");
 						   /* else { parser.code.append("	br label %"+l.lBegin+"\n");
 							    parser.code.append(l.lFalse+":	; l_False\n");
@@ -1137,7 +1144,7 @@ for_statement ::=
 			:}
 	;
 for_statement_no_short_if ::=
-		FOR LPAREN for_init_opt SEMICOLON expression_opt SEMICOLON
+		FOR LPAREN for_init_opt SEMICOLON M7:l expression_opt M5 SEMICOLON
 			for_update_opt RPAREN statement_no_short_if
 	;
 for_init_opt ::=
@@ -1636,6 +1643,8 @@ postfix_expression ::=
 				    else RESULT = new Exp(sn.cs.getType(), sn.cs.getLocT(), sn.cs.getLocN()); 
 			   }
 			:}
+	|	postincrement_expression:e 
+	|	postdecrement_expression:e 
 	|	AT name:sn
 			{: if(sn.cs == null) { parser.sem_error(sn.name,"UNKNOWN NAME");
 				   		     RESULT = new Exp(Type.errortype(), "", "");
@@ -1649,9 +1658,17 @@ M10 ::=
 			   }
 			:}
 	;
+postincrement_expression ::=
+		postfix_expression:e PLUSPLUS {: RESULT = e; :}
+	;
+postdecrement_expression ::=
+		postfix_expression:e MINUSMINUS {: RESULT = e; :}
+	;
 unary_expression ::=
 		postfix_expression:e
 			{: RESULT = e; :}
+	|   preincrement_expression
+	|	predecrement_expression
 	|	NOT M10:l unary_expression:e
 			{: if(parser.second) if(!e.type.isBool()) { parser.sem_error(""+e.type, "NOT A BOOLEAN");
 				    		   			   	  RESULT = new Exp(Type.errortype(), "", "");
@@ -1681,6 +1698,24 @@ unary_expression ::=
 			   }						    
 			:}
 	;
+	
+	
+preincrement_expression ::=
+		PLUSPLUS unary_expression:e {: if(parser.second) if(!e.type.isNumber()) { parser.sem_error(""+e.type, "NOT A NUMBER");
+				    		   			     	    RESULT = new Exp(Type.errortype(), "", "");
+						   }	   
+			   			   else  RESULT = e;						    
+			:}
+	;
+
+predecrement_expression ::=
+		MINUSMINUS unary_expression:e {: if(parser.second) if(!e.type.isNumber()) { parser.sem_error(""+e.type, "NOT A NUMBER");
+				    		   			     	    RESULT = new Exp(Type.errortype(), "", "");
+						   }	   
+			   			   else  RESULT = e;						    
+			:}
+	;
+
 multiplicative_expression ::=
 		unary_expression:e
 			{: RESULT = e; :}
