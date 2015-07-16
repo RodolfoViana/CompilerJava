@@ -50,9 +50,10 @@ class Test {
 	
 	/* Testes do For */
 	public void testaFor(){
-	
-		int j;
-		for (int j=1;j < 4;j++){ int ku;}
+		for (int x=0;x < 4;x++){ int ku;}
+		
+		int j = 0;
+		//for (int j=1;j < 4;j++){ int ku;} 
 		
 		for (;j < 4;j++){ int ku;}
 		

@@ -324,7 +324,7 @@ non terminal explicit_constructor_invocation;
 non terminal package_declaration_opt, package_declaration;
 non terminal block, M2;
 non terminal block_statements_opt, block_statements, block_statement;
-non terminal local_variable_declaration_statement, local_variable_declaration, for_variable_declaration_statement;
+non terminal local_variable_declaration_statement, local_variable_declaration, for_variable_declaration_statement, variable_declaration;
 non terminal statement, statement_no_short_if;
 non terminal statement_without_trailing_substatement;
 non terminal empty_statement;
@@ -680,7 +680,13 @@ class_member_declaration ::=
 
 // 5.2) Field Declarations
 field_declaration ::= 
-		modifiers_opt type variable_declarators:w SEMICOLON
+		modifiers_opt type variable_declarators:w assign_opt:o SEMICOLON {: System.err.println(o.type); if(parser.second) if(w.type.isArray()) { if(w.type != o.type) { parser.sem_error(""+w.type+", "+o.type, "INCOMPATIBLE TYPES");
+				    						    	   			    RESULT = new Exp(Type.errortype(), "", "");
+			   			   	  			   }
+										   else { Symb s = Env.get(e1.locN.replaceFirst("%", ""));
+											    s.putLocT(e2.locT);
+											    s.putLocN(e2.locN);
+										   }
 	|	modifiers_opt type error 
 			{: parser.report_error("variable_declarators","WRONG"); :}
 		SEMICOLON 
@@ -688,7 +694,8 @@ field_declaration ::=
 			{: parser.report_error("field_declaration","WRONG"); :} 
 		method_declaration 
 	;
-	
+
+
 assign_opt ::= | EQ assignment_expression;
 
 variable_declarators ::=
@@ -698,6 +705,11 @@ variable_declarators ::=
 			{: parser.report_error("variable_declarator_id","WRONG"); :} 
 		COMMA variable_declarator_id
 	;
+	
+/* variable_declaration ::=
+	local_variable_declaration_statement
+	; */
+	
 M1 ::=
 			{: RESULT = (Type)((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)).value; :}
 	;
@@ -1109,10 +1121,10 @@ local_variable_declaration_statement ::=
 for_variable_declaration_statement ::=
 		type variable_declarators assign_opt
 	;
-local_variable_declaration ::=
+/* local_variable_declaration ::=
 		type variable_declarators
 	|	FINAL type variable_declarators
-	;
+	; */
 statement ::=
 		statement_without_trailing_substatement
 	|	if_then_statement
