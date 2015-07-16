@@ -126,6 +126,7 @@ SingleCharacter = [^\r\n\'\\]
   "int"                          { return symbol(sym.INT); }
   "new"                          { return symbol(sym.NEW); }
   "if"                           { return symbol(sym.IF); }
+  "final"                        { return symbol( sym.FINAL); }
  
   "public"                       { return symbol( sym.PUBLIC); }
   "super"                        { return symbol( sym.SUPER); }
@@ -186,6 +187,7 @@ SingleCharacter = [^\r\n\'\\]
   "*"                            { return symbol(sym.MULT); }
   "/"                            { return symbol(sym.DIV); }
   "%"                            { return symbol(sym.MOD); }
+  
   
   /* string literal */
   \"                             { yybegin(STRING); string.setLength(0); }

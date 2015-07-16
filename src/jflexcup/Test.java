@@ -1,10 +1,12 @@
 package jflexcup;
-/* HelloWorld.java
+
+//import coisas;
+
+/* Testes de Java 
  */
 
 class Test {
-	int i;
-	//i = 0;   // isso deveria dar erro!!!
+	int i = 0;   // isso deveria dar erro!!!
 	
 	public int outroMetodo(int num1, int num2){
 	
@@ -50,11 +52,49 @@ class Test {
 	public void testaFor(){
 	
 		int j;
-		for (j=1;j < 4;j++){ int ku;}
+		for (int j=1;j < 4;j++){ int ku;}
+		
+		for (;j < 4;j++){ int ku;}
+		
+		for (;j < 4;){ int ku;}
+		
+		for (j=1;j < 4;j--){ int ku;}
+		
+		for (j=1;j < 4;--j){ int ku;}
+		
+		//for (j=1;j < 4;x++){ int ku;} // da erro semantico e deveria
+		
+		//for (j < 4;j++){ int ku;} // da erro sintatico e deveria
+		
+		//for (j=1; j ;--j){ int ku;} // da erro semantico e deveria
+		
+		boolean bool;
+		bool = true;
+		for (j=1; bool ;--j){ int ku;}
+		
+		//for (bool; bool ;--j){ int ku;} // da erro sintatico e deveria
+		
+		for (j=1; bool ;--j){
+			if (3 > 5){j = j+1;}
+			else {j = j+2;}
+		}
 	}
 	
 	/* Testes do While */
 	public void testaWhile(){
+			
+		while(true){
+		int c;
+		}
+	}
+	
+	/* Tipo Variavel */
+	public void testaTipoVariavel(){
+		int a;
+		// a = " ";     // da erro semantico e deveria
+		
+		//String b;
+		//b = "abc";
 			
 		while(true){
 		int c;

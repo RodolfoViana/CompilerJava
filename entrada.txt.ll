@@ -140,6 +140,7 @@ define void @Test_testaFor(%struct.Test* %this) {
 entry:
 		; M3
 	%j = alloca i32
+	%bool = alloca i1
 		; assignment
 	store i32 1, i32* %j
 	br label %label_36
@@ -151,6 +152,86 @@ label_36:	; l_Begin
 label_37:	; l_True
 		; M2
 	%ku = alloca i32
+	br label %label_40
+label_40:	; l_Begin
+		; relational_LT_expression
+	%tmp22 = load i32* %j
+	%tmp23 = icmp slt i32 %tmp22, 4
+	br i1 %tmp23, label %label_41, label %label_42
+label_41:	; l_True
+		; M2
+	%ku = alloca i32
+	br label %label_44
+label_44:	; l_Begin
+		; relational_LT_expression
+	%tmp24 = load i32* %j
+	%tmp25 = icmp slt i32 %tmp24, 4
+	br i1 %tmp25, label %label_45, label %label_46
+label_45:	; l_True
+		; M2
+	%ku = alloca i32
+		; assignment
+	store i32 1, i32* %j
+	br label %label_52
+label_52:	; l_Begin
+		; relational_LT_expression
+	%tmp26 = load i32* %j
+	%tmp27 = icmp slt i32 %tmp26, 4
+	br i1 %tmp27, label %label_53, label %label_54
+label_53:	; l_True
+		; M2
+	%ku = alloca i32
+		; assignment
+	store i32 1, i32* %j
+	br label %label_60
+label_60:	; l_Begin
+		; relational_LT_expression
+	%tmp28 = load i32* %j
+	%tmp29 = icmp slt i32 %tmp28, 4
+	br i1 %tmp29, label %label_61, label %label_62
+label_61:	; l_True
+		; M2
+	%ku = alloca i32
+		; assignment
+label_65:	; l_True
+	br label %label_67
+label_66:	; l_False
+	br label %label_67
+label_67:	; l_Next
+	%tmp30 = phi i1 [true, %label_65] ,[false, %label_66]
+	store i1 %tmp30, i1* %bool
+		; assignment
+	store i32 1, i32* %j
+	br label %label_72
+label_72:	; l_Begin
+	br i1 %bool, label %label_73, label %label_74
+label_73:	; l_True
+		; M2
+	%ku = alloca i32
+		; assignment
+	store i32 1, i32* %j
+	br label %label_80
+label_80:	; l_Begin
+	br i1 %bool, label %label_81, label %label_82
+label_81:	; l_True
+		; relational_GT_expression
+	%tmp31 = icmp sgt i32 3, 5
+	br i1 %tmp31, label %label_85, label %label_86
+label_85:	; l_True
+		; additive_PLUS_expression
+	%tmp32 = load i32* %j
+	%tmp33 = add i32 %tmp32, 1
+		; assignment
+	store i32 %tmp33, i32* %j
+	br label %label_87
+label_86:	; l_False
+		; additive_PLUS_expression
+	%tmp34 = load i32* %j
+	%tmp35 = add i32 %tmp34, 2
+		; assignment
+	store i32 %tmp35, i32* %j
+	br label %label_87
+label_87:	; l_Next
 		; method_declaration
 	br label %return
 return:
@@ -160,14 +241,33 @@ return:
 		; method_header
 define void @Test_testaWhile(%struct.Test* %this) {
 entry:
-	br label %label_40
-label_40:	; l_Begin
-	br label %label_41
-label_41:	; l_True
+	br label %label_96
+label_96:	; l_Begin
+	br label %label_97
+label_97:	; l_True
 		; M2
 	%c = alloca i32
-	br label %label_40
-label_42:	; l_False
+	br label %label_96
+label_98:	; l_False
+		; method_declaration
+	br label %return
+return:
+	ret void
+}
+
+		; method_header
+define void @Test_testaTipoVariavel(%struct.Test* %this) {
+entry:
+		; M3
+	%a = alloca i32
+	br label %label_100
+label_100:	; l_Begin
+	br label %label_101
+label_101:	; l_True
+		; M2
+	%c = alloca i32
+	br label %label_100
+label_102:	; l_False
 		; method_declaration
 	br label %return
 return:
