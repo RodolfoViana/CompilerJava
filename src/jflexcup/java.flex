@@ -142,6 +142,10 @@ SingleCharacter = [^\r\n\'\\]
   "for"							 { return symbol(sym.FOR); }
   "this"                         { return symbol(sym.THIS); }
 
+  "package"                      { return symbol( sym.PACKAGE); }
+  "implements"                   { return symbol( sym.IMPLEMENTS); }
+  "import"                       { return symbol( sym.IMPORT); }
+  "interface"                    { return symbol( sym.INTERFACE); }
   /* boolean literals */
   "true"                         { return symbol(sym.BOOLEAN_LITERAL, new Boolean(true)); }
   "false"                        { return symbol(sym.BOOLEAN_LITERAL, new Boolean(false)); }
