@@ -1,0 +1,15 @@
+package jflexcup;
+
+import coisas;
+
+/* Testes de Java 
+ */
+
+class Test {
+	int x = 1;
+	
+	public void outroMetodo(int num1, int num2){
+			int i = 0;
+			for (int j = 0 ; j < i; j++){}
+	}
+}

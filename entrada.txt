@@ -1,7 +1,107 @@
-public class Test{
-    public static void main(){
-        if(2>2){
-            int i = 1;
-        }
-    }
+package jflexcup;
+
+import coisas;
+
+/* Testes de Java 
+ */
+
+class Test {
+	int i = 0;
+	int xx;
+	//xx = 1;   // da erro e deveria!
+	
+	public int outroMetodo(int num1, int num2){
+	
+		return num1;				// obs: testei aqui e as variaveis globais nao sai aceitas no return
+	}
+	
+	/* Testes do chamadas de metodos (quantidade e tipos de parametros) */
+	public void testaChamadaDeMetodo(){
+
+		// outroMetodo();  		// da erro e deveria :)		metodo vazio
+		// outroMetodo("",""); 	// da erro e deveria :)		argumentos de tipos diferentes
+		// outroMetodo(i,i,i);	// da erro e deveria :)		numero diferentes de argumentos
+		outroMetodo(i,i);		// nao da erro :)			metodo ok	
+	}	
+	
+	/* Testes do retorno de metodos */
+	public char outroMetodo2(int num1){
+	
+		//return num1;				// da erro semantico e deveria
+		//return;					// da erro semantico e deveria, mas nao acusa erro semantico
+		//return "";				// da erro semantico e deveria
+		return 'a';					// retorno ok
+	}
+	
+	/* Testes dos Operadores relacionais */
+	public void testaOperadoresRelacionais(){
+		boolean j;
+		j = 4 > 5;
+		j = 5 == 5;
+		
+		j = 6 >= 5;
+		j = 6 <= 5;
+		j = 4 < 5;
+		
+		int i;
+		i = 0;
+		i++;
+		i--;
+	}
+	
+	
+	/* Testes do For */
+	public void testaFor(){
+	
+		for (int x=0;x < 4;x++){ int ku;}
+	
+		int j = 0;
+		//for (int j=1;j < 4;j++){ int ku;} // da erro semantico e deveria
+		
+		for (;j < 4;j++){ int ku;}
+		
+		for (;j < 4;){ int ku;}
+		
+		for (j=1;j < 4;j--){ int ku;}
+		
+		for (j=1;j < 4;--j){ int ku;}
+		
+		//for (j=1;j < 4;x++){ int ku;} // da erro semantico e deveria
+		
+		//for (j < 4;j++){ int ku;} // da erro sintatico e deveria
+		
+		//for (j=1; j ;--j){ int ku;} // da erro semantico e deveria
+		
+		boolean bool;
+		bool = true;
+		for (j=1; bool ;--j){ int ku;}
+		
+		//for (bool; bool ;--j){ int ku;} // da erro sintatico e deveria
+		
+		for (j=1; bool ;--j){
+			if (3 > 5){j = j+1;}
+			else {j = j+2;}
+		}
+	}
+	
+	/* Testes do While */
+	public void testaWhile(){
+			
+		while(true){
+		int c;
+		}
+	}
+	
+	/* Tipo Variavel */
+	public void testaTipoVariavel(){
+		int a;
+		// a = " ";     // da erro semantico e deveria
+		
+		//String b;
+		//b = "abc";
+			
+		while(true){
+		int c;
+		}
+	}
 }

@@ -187,6 +187,7 @@ SingleCharacter = [^\r\n\'\\]
   "*"                            { return symbol(sym.MULT); }
   "/"                            { return symbol(sym.DIV); }
   "%"                            { return symbol(sym.MOD); }
+  
   /* string literal */
   \"                             { yybegin(STRING); string.setLength(0); }
 

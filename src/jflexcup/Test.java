@@ -1,11 +1,12 @@
 package jflexcup;
 
-/* Testes de Java
+//import coisas;
+
+/* Testes de Java 
  */
 
 class Test {
-	int i;
-	//i = 0;   // isso deveria dar erro!!!
+	int i = 0;   // isso deveria dar erro!!!
 	
 	public int outroMetodo(int num1, int num2){
 	
@@ -49,9 +50,10 @@ class Test {
 	
 	/* Testes do For */
 	public void testaFor(){
-	
-		int j;
-		for (j=1;j < 4;j++){ int ku;}
+		for (int x=0;x < 4;x++){ int ku;}
+		
+		int j = 0;
+		//for (int j=1;j < 4;j++){ int ku;} 
 		
 		for (;j < 4;j++){ int ku;}
 		
